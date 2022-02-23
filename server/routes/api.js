@@ -1,78 +1,70 @@
-const { randomUUID } = require('crypto');
-const express = require('express');
-const router = express.Router();
+const { randomUUID } = require("crypto");
 const fs = require('fs');
-const path = require('path'); 
+const path = require('path');
+const express = require("express");
+const router = express.Router();
 
-
-let words = [];
+let words = ["hebrews", "proverb", "goliath", "Mystery"];
 let ratings = [];
 
-fs.readFile(
-    path.join(__dirname,'../data/7.proper.txt'), 
-    'utf-8', 
-    (err, data) => {
 
-    if(err) {
-        console.error(err);
-        return;
-    }
+fs.readFile( path.join(__dirname, "../data/7.proper.txt"), 
+            "utf-8", 
+            (err, data)=> {
+                if( err) {
+                    console.error( err);
+                    return;
+                }
 
-    words = data.split('\n');
+                words = data.split('\n');
 });
 
 /* GET /api/word */
-router.get('/word', function(req, res, next) {
-    const randomIndex = Math.floor(Math.random()*words.length);
-    const randomWord = words[randomIndex];
-    
-    res.send({id: randomIndex, word: randomWord});
-});
+/* return a random word from the word list */
+router.get("/word", function (req, res, next) {
+  const randomIndex = Math.floor(Math.random() * words.length);
+  const randomWord = words[randomIndex];
 
-/* GET /api/word/4 */
-router.get('/word/:id([0-9]+)', function(req, res, next) {
-    const id = parseInt(req.params.id);
-    const word = words[id];
-    
-    res.send({id: id, word: word});
-});
-
-/* GET /api/word/4 */
-router.get('/word/:word([A-Za-z]+)', function(req, res, next) {
-    const word = req.params.word;
-    for(let i = 0; i < words.length; i++) {
-        if ( words[i].toLowerCase() === word.toLowerCase()) {
-            res.send({id: i, word: word});
-            return;
-        }
-    }
-
-    res.status(404).send("Word not found.");
+  res.send({ word: randomWord, id: randomIndex, verse: "The Lord is my Shepherd..." });
 });
 
 
-/* GET /api/word/4/rating */
-router.get('/word/:id([0-9]+)/rating', function(req, res, next) {
-    const id = parseInt(req.params.id);
-    //const word = words[id];
+/* GET /api/word/5 */
+/* return a random word from the word list */
+router.get("/word/:id", function (req, res, next) {
+  const wordId = parseInt(req.params.id);
+  const word = words[wordId];
 
-    const ratingsForWord = ratings.filter( rating => rating.wordId===id);
+  if (!word) {
+    // return a 404
+    res.status(404).send("No words with that id in database.");
+  }
+
+  //const verse = words[wordId].verse
+  res.send({ word: word, id: wordId, verse: "The Lord is my Shepherd..." });
+});
+
+/* POST /api/word/5/rating */
+/* add a rating object for the given word 
+    {"rating" : "like", "id": "3"}
+*/
+router.post("/word/:id/rating", function (req, res, next) {
+  const wordId = parseInt(req.params.id);
+  const word = words[wordId];
+  const rating = req.body.rating;
+
+  // add rating object to ratings array
+  ratings.push({ id: randomUUID(), wordId, word, rating });
+
+  res.send({ wordId, word, rating });
+});
+
+router.get( '/word/:id/rating', (req, res)=> {
+    const wordId = parseInt(req.params.id);
+
+    const ratingsForWord = ratings.filter( r => r.wordId===wordId );
 
     res.send(ratingsForWord);
 });
-
-/* POST /api/word/4/rating */
-router.post('/word/:id([0-9]+)/rating', function(req, res, next) {
-    const wordId = parseInt(req.params.id);
-    const rating = req.body.rating;
-    const word = words[wordId];
-
-    const ratingId = randomUUID();
-    ratings.push( { id: ratingId, word: word, wordId: wordId, rating: rating});
-    res.send( { id: ratingId, word: word, wordId: wordId, rating: rating} );
-    
-    console.log({ id: ratingId, word: word, wordId: wordId, rating: rating});
-});
-
 
 module.exports = router;
