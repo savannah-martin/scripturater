@@ -27,7 +27,7 @@ router.get("/words", function (req, res, next) {
   
   allWords = []
   for(let i=0; i<words.length;i++) {
-    allWords.push( {word: words[i],id: i , verse: "The Lord is my Shepherd..." });
+    allWords.push( {word: words[i], id: i , verse: "The Lord is my Shepherd..." });
   }
 
   res.send(allWords);
@@ -44,7 +44,7 @@ router.get("/words/random", function (req, res, next) {
 
 
 /* GET /api/words/5 */
-/* return a random word from the word list */
+/* return the given word from the word list */
 router.get("/words/:id", function (req, res, next) {
   const wordId = parseInt(req.params.id);
   const word = words[wordId];
@@ -58,33 +58,39 @@ router.get("/words/:id", function (req, res, next) {
   res.send({ word: word, id: wordId, verse: "The Lord is my Shepherd..." });
 });
 
-/* GET /api/words/5 */
-/* return a random word from the word list */
-router.get("/word/:id", function (req, res, next) {
+/* PUT /api/words/5 */
+/* updates a word from the word list */
+// { "word": "proverb", verse: "This is a proverb..."}
+router.put("/word/:id", function (req, res, next) {
   const wordId = parseInt(req.params.id);
   const word = words[wordId];
+  const newWord = req.body.word;
 
   if (!word) {
     // return a 404
     res.status(404).send("No words with that id in database.");
   }
+
+  words[wordId] = newWord;
 
   //const verse = words[wordId].verse
   res.send({ word: word, id: wordId, verse: "The Lord is my Shepherd..." });
 });
 
-/* GET /api/words/5 */
+// TODO
+/* DELETE /api/words/5 */
 /* return a random word from the word list */
-router.get("/words/:id", function (req, res, next) {
+router.delete("/words/:id", function (req, res, next) {
   const wordId = parseInt(req.params.id);
   const word = words[wordId];
 
   if (!word) {
     // return a 404
-    res.status(404).send("No words with that id in database.");
+    res.status(404).send("No word with that id in database.");
   }
 
-  //const verse = words[wordId].verse
+  words = words.filter( w => w.id !== wordId);
+
   res.send({ word: word, id: wordId, verse: "The Lord is my Shepherd..." });
 });
 

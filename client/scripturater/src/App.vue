@@ -6,17 +6,31 @@ export default {
 
   data() {
     return {
-      word: {id:0, word:"hebrews"}
+      word: {id:0, word:"hebrews"},
+      numberWordsRated: 0
     }
   },
   methods:{
-    loadNewWord: async () =>{
-      const result = await fetch("http://localhost:3000/api/word");
-      const data = await result.json();
+    async loadNewWord() {
+      const result = await fetch("http://localhost:3000/api/words/random");
+      const word = await result.json();
 
-      alert(data.word);
 
-      this.word = data.word;
+
+      this.numberWordsRated++;
+      //alert(word.word);
+
+      this.word = word;
+    },
+
+    async submitRating(rating) {
+      const result = await fetch(`http://localhost:3000/api/words/${3}/ratings`, 
+      {
+        method:"post", 
+        body: {rating: rating}
+      });
+
+
     }
   },
   mounted() {
@@ -32,9 +46,15 @@ export default {
 
   <h2>{{word.word}}</h2>
 
-  <button>🙁</button>
-  <button>😐</button>
-  <button>🙂</button>
+  <h3>{{numberWordsRated}}</h3>
+
+  <button @click="submitRating('like')">🙁</button>
+  <button @click="submitRating('neutral')">😐</button>
+  <button @click="submitRating('dislike')">🙂</button>
+
+  <br>
+
+  <button @click="loadNewWord">Get Another Word</button>
 
 </template>
 
