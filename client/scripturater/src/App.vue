@@ -23,11 +23,14 @@ export default {
       this.word = word;
     },
 
-    async submitRating(rating) {
-      const result = await fetch(`http://localhost:3000/api/words/${3}/ratings`, 
+    async submitRating(wordId, rating) {
+      const result = await fetch(`http://localhost:3000/api/words/${wordId}/ratings`, 
       {
         method:"post", 
-        body: {rating: rating}
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( {rating: rating} )
       });
 
 
@@ -48,9 +51,9 @@ export default {
 
   <h3>{{numberWordsRated}}</h3>
 
-  <button @click="submitRating('like')">🙁</button>
-  <button @click="submitRating('neutral')">😐</button>
-  <button @click="submitRating('dislike')">🙂</button>
+  <a href="" @click.prevent="submitRating(word.id, 'like')">🙁</a>
+  <a href="" @click.prevent="submitRating(word.id, 'neutral')">😐</a>
+  <a href="" @click.prevent="submitRating(word.id, 'dislike')">🙂</a>
 
   <br>
 
@@ -66,5 +69,10 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+a {
+  font-size: 8em;
+  text-decoration: none;
 }
 </style>
