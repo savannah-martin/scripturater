@@ -152,7 +152,23 @@ router.post("/words/:id/ratings", function (req, res, next) {
     BODY: {"rating" : "like"}
 */
 router.put( '/words/:wordId/ratings/:ratingId', (req, res)=> {
+  const wordId = parseInt(req.params.id);
+  const word = words[wordId];
+  const ratingId = req.params.ratingId;
+  const newRating = req.body.rating;
   
+  
+  const rating = ratings.find(r => r.id === ratingId);
+
+
+  if (rating) {
+    rating.rating = newRating
+    res.send(rating)
+  }
+  else {
+    res.status(404).send("No rating with that id.");
+  }
+
 });
 
 
@@ -161,7 +177,16 @@ router.put( '/words/:wordId/ratings/:ratingId', (req, res)=> {
 /* delete an existing rating object for a given word
 */
 router.delete( '/words/:wordId/ratings/:ratingId', (req, res)=> {
-  
+  const ratingId = req.params.ratingId;
+  const rating = ratings.find(r => r.id == ratingId)
+
+  if (!rating){
+    res.status(404).send("No raitng with that id.")
+  }
+  else {
+    rating = ratings.filter(r => r.id !== ratingId)
+    res.send(rating);
+  }
 });
 
 module.exports = router;
